@@ -40,8 +40,8 @@ state, app-specific storage, sensors, permissions, and server-side behavior.
 Install Privacy Kit from one of the official public release locations:
 
 - LSPosed module repository listing for `com.sal.privacykit`.
-- GitHub release: [Privacy Kit 5-1.4](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/5-1.4).
-- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/5-1.4/app-release.apk).
+- GitHub release: [Privacy Kit 6-1.5](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/6-1.5).
+- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/6-1.5/app-release.apk).
 
 After downloading, install the APK on the device where LSPosed is already set
 up. Do not install APKs from unknown mirrors unless you can verify the checksum
@@ -121,16 +121,16 @@ still works before applying broader changes.
 
 Official release:
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/5-1.4
+https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/6-1.5
 
 Official APK:
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/5-1.4/app-release.apk
+https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/6-1.5/app-release.apk
 
 Expected SHA-256 for `app-release.apk`:
 
 ```text
-D030E290432B97D77E80ED515FD6B57CAB26A0905A47879771001D70B7D33B01
+37AA9A963252520C3F77C44D85D5A579591F4CA601D7D488989D2CC8E6393C93
 ```
 
 On a desktop system, compare the downloaded file's SHA-256 hash with the value
