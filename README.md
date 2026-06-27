@@ -22,6 +22,11 @@ state, app-specific storage, sensors, permissions, and server-side behavior.
 
 - Per-app identifier spoofing for selected target apps.
 - LSPosed/Xposed module integration.
+- One-tap AI Auto Profile and Maximum Privacy profile flows in release 6-1.5.
+- Isolated browser account sessions using Android System WebView on supported
+  Android versions.
+- Hook Diagnostics and history views for troubleshooting LSPosed scope, profile,
+  and hook activity.
 - Package name: `com.sal.privacykit`.
 - Release-only public repository for LSPosed distribution.
 - Official APK releases published through GitHub Releases.
