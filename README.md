@@ -1,3 +1,5 @@
+![Privacy Kit banner](assets/privacy-kit-banner.png)
+
 # Privacy Kit
 
 Privacy Kit is an LSPosed module for per-app Android identifier spoofing.
