@@ -1,5 +1,58 @@
 # Changelog
 
+## 7-1.6
+
+Privacy Kit 7-1.6 is a hotfix LSPosed release focused on browser compatibility
+for commerce, checkout, login, and payment flows while keeping the public
+repository release-only.
+
+### Highlights
+
+- Improved Android System WebView compatibility for commerce and payment sites
+  that expect a normal Chrome-like mobile user agent.
+- Kept the browser full-screen and free of an in-app title bar so embedded
+  login, checkout, and payment flows have maximum usable space.
+- Improved popup window handling and cleanup for payment/login windows opened
+  by sites.
+- Added safer external link handling for app, intent, market, and unsupported
+  schemes.
+- Kept compact action icons disabled until the selected app/profile data is
+  ready, improving accessibility feedback and avoiding accidental empty
+  profile actions.
+
+### Fixes
+
+- Fixed WebView fallback behavior for sites that do not expose a suitable
+  default mobile user agent by using a Chrome-compatible fallback string.
+- Fixed popup lifecycle cleanup so closed or dismissed WebView windows are
+  disposed consistently.
+- Added a main-frame page load error state for clearer browser failure
+  feedback.
+- Blocked local, content, and JavaScript URL schemes inside the browser surface.
+- Kept Maximum Privacy action icons inactive until profile actions are
+  available, so no default notes or empty profile actions are created
+  accidentally.
+
+### Verification
+
+- Official APK asset: `app-release.apk`
+- Version: `versionCode 7`, `versionName 1.6`
+- SHA-256:
+  `585F4DF50ADEBC78458D359B3477CA610F98DBA4B25BE282B8B9CE471214991E`
+- APK size: `16,861,742` bytes
+- Public repository contents verified as release metadata only:
+  `README.md`, `CHANGELOG.md`, `NOTICE.md`, and `assets/privacy-kit-banner.png`.
+
+### Limitations
+
+- Android System WebView behavior depends on the installed WebView provider and
+  Android version.
+- Some commerce or payment providers can still enforce their own account,
+  integrity, region, device, or risk checks outside WebView compatibility.
+- This public repository remains release-only. Source code, signing material,
+  build project files, private tooling, and generated build outputs are not
+  published here.
+
 ## 6-1.5
 
 Privacy Kit 6-1.5 is a focused LSPosed release that improves browser isolation,

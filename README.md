@@ -24,9 +24,11 @@ state, app-specific storage, sensors, permissions, and server-side behavior.
 
 - Per-app identifier spoofing for selected target apps.
 - LSPosed/Xposed module integration.
-- One-tap AI Auto Profile and Maximum Privacy profile flows in release 6-1.5.
+- One-tap AI Auto Profile and Maximum Privacy profile flows.
 - Isolated browser account sessions using Android System WebView on supported
   Android versions.
+- Hotfix WebView compatibility for commerce, checkout, login, and payment
+  flows in release 7-1.6.
 - Hook Diagnostics and history views for troubleshooting LSPosed scope, profile,
   and hook activity.
 - Package name: `com.sal.privacykit`.
@@ -47,8 +49,8 @@ state, app-specific storage, sensors, permissions, and server-side behavior.
 Install Privacy Kit from one of the official public release locations:
 
 - LSPosed module repository listing for `com.sal.privacykit`.
-- GitHub release: [Privacy Kit 6-1.5](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/6-1.5).
-- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/6-1.5/app-release.apk).
+- GitHub release: [Privacy Kit 7-1.6](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/7-1.6).
+- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/7-1.6/app-release.apk).
 
 After downloading, install the APK on the device where LSPosed is already set
 up. Do not install APKs from unknown mirrors unless you can verify the checksum
@@ -128,16 +130,16 @@ still works before applying broader changes.
 
 Official release:
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/6-1.5
+https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/7-1.6
 
 Official APK:
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/6-1.5/app-release.apk
+https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/7-1.6/app-release.apk
 
 Expected SHA-256 for `app-release.apk`:
 
 ```text
-37AA9A963252520C3F77C44D85D5A579591F4CA601D7D488989D2CC8E6393C93
+585F4DF50ADEBC78458D359B3477CA610F98DBA4B25BE282B8B9CE471214991E
 ```
 
 On a desktop system, compare the downloaded file's SHA-256 hash with the value
