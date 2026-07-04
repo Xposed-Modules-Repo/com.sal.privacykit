@@ -29,8 +29,14 @@ state, app-specific storage, sensors, permissions, and server-side behavior.
   Android versions.
 - Hotfix WebView compatibility for commerce, checkout, login, and payment
   flows in release 7-1.6.
-- Hook Diagnostics and history views for troubleshooting LSPosed scope, profile,
-  and hook activity.
+- Live in-process updates (as of release 10-1.8) so location, Build fields,
+  and identifier changes apply to an already-running target app without a
+  relaunch.
+- Region Preset, per-app walk/jog and drive Activity Simulation scheduling,
+  saved Favorite Locations, and a map-based coordinate picker for location
+  spoofing (as of release 10-1.8).
+- Hook Diagnostics, an in-app hook log viewer, and history views for
+  troubleshooting LSPosed scope, profile, and hook activity.
 - Package name: `com.sal.privacykit`.
 - Release-only public repository for LSPosed distribution.
 - Official APK releases published through GitHub Releases.
@@ -49,8 +55,8 @@ state, app-specific storage, sensors, permissions, and server-side behavior.
 Install Privacy Kit from one of the official public release locations:
 
 - LSPosed module repository listing for `com.sal.privacykit`.
-- GitHub release: [Privacy Kit 7-1.6](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/7-1.6).
-- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/7-1.6/app-release.apk).
+- GitHub release: [Privacy Kit 10-1.8](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/10-1.8).
+- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/10-1.8/app-release.apk).
 
 After downloading, install the APK on the device where LSPosed is already set
 up. Do not install APKs from unknown mirrors unless you can verify the checksum
@@ -130,16 +136,16 @@ still works before applying broader changes.
 
 Official release:
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/7-1.6
+https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/10-1.8
 
 Official APK:
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/7-1.6/app-release.apk
+https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/10-1.8/app-release.apk
 
 Expected SHA-256 for `app-release.apk`:
 
 ```text
-585F4DF50ADEBC78458D359B3477CA610F98DBA4B25BE282B8B9CE471214991E
+827286F703BEEEF333AA82F7215CED15732B203F6A9ABAFEAF39EC0DBA51D578
 ```
 
 On a desktop system, compare the downloaded file's SHA-256 hash with the value

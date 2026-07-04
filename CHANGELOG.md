@@ -1,5 +1,39 @@
 # Changelog
 
+## 10-1.8
+
+Privacy Kit 10-1.8 adds live in-process configuration updates and new location
+tooling, while keeping the public repository release-only.
+
+### Highlights
+
+- Live config polling: location policy, Build fields, and identifier hooks
+  (android_id, IMEI, SIM/carrier, Firebase/GMS ids, etc.) now apply to an
+  already-running hooked app within seconds, using libxposed API 102's
+  `HookHandle.replaceHook` for identifiers and a live-read reference for
+  location/Build fields -- no more force-stop required for most config
+  changes.
+- Region Preset: sets GPS, timezone, locale, and carrier identifiers together
+  from a set of predefined regions, so location and identity signals stay
+  consistent for fraud/attribution SDKs that cross-check them.
+- Activity Simulation: schedules a daily walk/jog (round trip) or one-way
+  drive to a saved Favorite Location, at a random time within a configured
+  morning window, for apps that expect realistic movement data.
+- Favorite Locations: save and reuse named coordinates across Region Preset,
+  Location Policy, and Activity Simulation.
+- Map-based location picker (MapLibre, no Google API key required) as an
+  alternative to entering raw coordinates.
+- In-app hook log viewer and a generalized, keyword-driven GMS/Firebase
+  binder discovery tool for diagnosing hook issues without adb.
+- Fixed a History screen bug where hooks in the "not configured" state were
+  silently dropped instead of shown.
+
+### Fixes
+
+- Fixed a live-update loop that could repeatedly reapply a "Random Per
+  Launch" identifier's hook on every poll cycle instead of leaving it fixed
+  for the process's lifetime.
+
 ## 7-1.6
 
 Privacy Kit 7-1.6 is a hotfix LSPosed release focused on browser compatibility
