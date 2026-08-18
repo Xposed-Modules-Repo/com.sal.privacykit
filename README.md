@@ -2,181 +2,242 @@
 
 # Privacy Kit
 
-Privacy Kit is an LSPosed module for per-app Android identifier spoofing.
+Privacy Kit is a multi-layer Android anti-fingerprinting toolkit built around an
+LSPosed module. It lets you give each selected app its own controlled device
+identity instead of changing identifiers globally, so apps that rely on stable
+device identifiers see a coherent, per-app fake device rather than your real one.
 
-It is designed for users who want more control over the identifiers that apps
-can read from their device. Instead of changing identifiers globally, Privacy
-Kit lets you manage spoofed values on an app-by-app basis so each selected app
-can receive its own controlled identity.
+It is designed for users who want more control over what apps can read from their
+device — for separating app profiles, reducing cross-app tracking based on stable
+identifiers, and testing how apps behave when device identity values change.
 
-## What Privacy Kit Does
+Privacy Kit does not make a device anonymous by itself. Apps can still use many
+other signals — account login, IP address, network metadata, browser state,
+app-specific storage, sensors, permissions, and server-side behavior.
 
-Privacy Kit hooks supported Android identifier access paths through LSPosed and
-returns configured spoofed values to selected apps. This can help separate app
-profiles, reduce cross-app tracking based on stable identifiers, and test how
-apps behave when device identity values are changed.
+## What's in a Release
 
-This module does not make a device anonymous by itself. Apps can still use many
-other signals, including account login, IP address, network metadata, browser
-state, app-specific storage, sensors, permissions, and server-side behavior.
+A Privacy Kit release ships up to four components. Only the first is required;
+the rest are optional layers that reach deeper below the app.
+
+| Component | File | What it does | Needs |
+|---|---|---|---|
+| **Privacy Kit module** | `PrivacyKit-<ver>.apk` | The app + LSPosed module. Hooks Java-layer identifier APIs per selected app and returns coherent spoofed values. | LSPosed |
+| **Zygisk native module** | `privacykit-zygisk-*.zip` | Closes native/file read paths the Java hooks can't reach — system properties, `/proc`, `/sys`, `boot_id`, sysfs Wi-Fi MAC, kernel, `/proc/meminfo`. | Magisk/KernelSU/APatch Zygisk |
+| **Kernel module (KPM)** | `privacykit_kpm.kpm` | **Optional, advanced.** Spoofs file timestamps, `/proc/cpuinfo`, CPU cluster frequencies and `/proc/net/if_inet6` in the kernel, below every app and service. | APatch with KPM support |
+| **PK Probe** | `PKProbe-<ver>.apk` | Companion self-test app. Verifies which identifiers are actually being spoofed vs. still leaking. | — (optional) |
+
+## How the Layers Work
+
+Privacy Kit spoofs the same identifier at more than one level, because a real
+fingerprinting SDK reads the same value through several paths (a Java getter,
+a system property, a `/proc` or `/sys` file, or directly via the kernel).
+
+- **Per-app (LSPosed)** — hooks Java getters (`Build.*`, `TelephonyManager`,
+  `Settings.Secure`, `WifiInfo`, media DRM, GMS identifiers, …) inside each
+  target app you enable in LSPosed scope. This is the core layer.
+- **Native (Zygisk)** — rewrites what the app sees from `SystemProperties`,
+  `getprop`, and file reads under `/proc` and `/sys`, so a native or file-based
+  read returns the same fake value as the Java getter.
+- **Framework mode (optional, experimental)** — spoofs at the provider process
+  (`system_server` / the phone process), per calling app, so the target app
+  reads the fake value with **no hook in its own process**. Covers `android_id`,
+  build serial, and telephony identifiers. Requires adding "Android System
+  Framework" and the Phone app (`com.android.phone`) to Privacy Kit's LSPosed
+  scope, then a reboot.
+- **Kernel (KPM, optional)** — for APatch users, spoofs surfaces below libc and
+  below any service (file timestamps, `/proc/cpuinfo`, cpufreq, IPv6 link-local).
+
+Coherence is the point: a spoofed profile draws one real, consistent device
+(brand, model, SoC, fingerprint, baseband, RAM, screen, etc.) so the values do
+not contradict each other across paths.
+
+## Identifiers Covered
+
+Coverage depends on the layers you enable and the app's read path. Grouped by kind:
+
+- **Advertising & app identity** — Advertising ID (GAID), App Set ID, Google
+  Services Framework ID (GSF), `ANDROID_ID`, Firebase Installation ID, Firebase
+  App Instance ID, Media DRM / Widevine device ID.
+- **Device & build** — model, brand, manufacturer, device/product/board/hardware,
+  build fingerprint, build ID/display, bootloader, serial, build time, SoC model
+  & manufacturer, baseband/radio version.
+- **OS & boot** — Android release, API level (SDK), security patch, build
+  incremental, kernel version (`os.version`/`uname`), `boot_id`, boot time,
+  uptime.
+- **Telephony & SIM** — IMEI, MEID, IMSI (subscriber ID), ICCID (SIM serial),
+  phone number, network & SIM operator (MCC/MNC + name), network & SIM country,
+  SIM carrier ID, phone count, type-allocation code.
+- **Network** — Wi-Fi MAC, BSSID, SSID, Bluetooth MAC & name, hostname, IPv6
+  link-local address (`/proc/net/if_inet6`).
+- **Hardware** — `/proc/cpuinfo` (SoC / CPU part), CPU cluster max frequencies,
+  total RAM (`MemTotal`), display metrics (xdpi/ydpi/density, resolution).
+- **Locale & environment** — time zone, locale, HTTP / WebView user-agent,
+  first-install and last-update time.
+- **Location** — GPS coordinate spoofing, Region Presets, per-app walk/jog/drive
+  Activity Simulation, saved Favorite Locations, map-based coordinate picker.
+
+Some surfaces are intentionally **not** changed because doing so is a bigger tell
+or a stability risk (for example, CPU ABI list and core count are left real).
 
 ## Key Features
 
-- Per-app identifier spoofing for selected target apps.
-- LSPosed/Xposed module integration.
+- Per-app identifier spoofing for selected target apps, with coherent whole-device
+  profiles rather than random unrelated values.
 - One-tap AI Auto Profile and Maximum Privacy profile flows.
+- Native (Zygisk) layer for file/property/`/proc`/`/sys` reads, and an optional
+  Framework mode and Kernel (KPM) tier for deeper coverage.
+- **PK Probe** companion for verifying exactly which values are spoofed vs. leaking.
 - Isolated browser account sessions using Android System WebView on supported
-  Android versions.
-- Hotfix WebView compatibility for commerce, checkout, login, and payment
-  flows in release 7-1.6.
-- Live in-process updates (as of release 10-1.8) so location, Build fields,
-  and identifier changes apply to an already-running target app without a
-  relaunch.
-- Region Preset, per-app walk/jog and drive Activity Simulation scheduling,
-  saved Favorite Locations, and a map-based coordinate picker for location
-  spoofing (as of release 10-1.8).
-- Hook Diagnostics, an in-app hook log viewer, and history views for
-  troubleshooting LSPosed scope, profile, and hook activity.
-- Package name: `com.sal.privacykit`.
-- Release-only public repository for LSPosed distribution.
-- Official APK releases published through GitHub Releases.
-- Public checksum information for release verification.
+  Android versions, with WebView compatibility hotfixes for checkout/login/payment.
+- Live in-process updates so location, Build fields, and identifier changes apply
+  to an already-running target app without a relaunch.
+- Region Presets, Activity Simulation scheduling, Favorite Locations, and a
+  map-based coordinate picker for location spoofing.
+- Hook Diagnostics, an in-app hook log viewer, Export Diagnostics, and history
+  views for troubleshooting LSPosed scope, profile, and hook activity.
+- Package name: `com.sal.privacykit`. Companion package: `com.test.gmsprobe`.
 
 ## Requirements
 
-- Android device with root access.
-- Magisk or another supported root environment.
-- LSPosed installed and working.
-- A compatible Android version for your LSPosed setup.
-- Basic understanding of Xposed module behavior and app compatibility risks.
+- Android device with root (Magisk, KernelSU, or APatch).
+- LSPosed installed and working (for the module).
+- A Zygisk implementation (for the native layer).
+- APatch with KPM support (only for the optional kernel module).
+- Basic understanding of Xposed module behavior and app-compatibility risks.
 
 ## Installation
 
-Install Privacy Kit from one of the official public release locations:
+Install from an official public release:
 
 - LSPosed module repository listing for `com.sal.privacykit`.
-- GitHub release: [Privacy Kit 10-1.8](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/10-1.8).
-- Direct APK asset: [app-release.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/10-1.8/app-release.apk).
+- GitHub release: [Privacy Kit 24-1.22](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/24-1.22).
+- Direct APK asset: [PrivacyKit-1.22.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/24-1.22/PrivacyKit-1.22.apk).
 
-After downloading, install the APK on the device where LSPosed is already set
-up. Do not install APKs from unknown mirrors unless you can verify the checksum
-against the official release information below.
+Install the APK on the device where LSPosed is set up. Do not install APKs from
+unknown mirrors unless you verify the checksum against the values below.
 
 ## Enabling the Module in LSPosed
 
 1. Open the LSPosed manager app.
-2. Go to the Modules section.
-3. Select Privacy Kit.
-4. Enable the module.
-5. Select the apps you want Privacy Kit to affect.
-6. Reboot the device if LSPosed asks you to, or force stop and restart selected
-   target apps when appropriate.
+2. Go to Modules and select Privacy Kit.
+3. Enable the module.
+4. Select the apps you want Privacy Kit to affect.
+5. Reboot if LSPosed asks, or force stop and reopen the selected target apps.
 
-Only enable the module for apps you intend to manage. Keeping the scope narrow
-usually makes troubleshooting easier and reduces unexpected behavior.
+Keep the scope narrow — only enable it for apps you intend to manage.
+
+## Verifying Spoofing with PK Probe
+
+PK Probe (`PKProbe-1.22.apk`) checks what is actually being spoofed, by baseline
+diff rather than guesswork:
+
+1. Install PK Probe **unhooked** (not in Privacy Kit's LSPosed scope) and tap
+   **SAVE BASELINE** — it records the real values via every read path.
+2. Add `com.test.gmsprobe` to Privacy Kit's LSPosed scope, apply a full spoof
+   profile, and relaunch.
+3. Tap **COMPARE** — each path is diffed against its baseline: **changed = hooked**,
+   **unchanged = the real value is still leaking**.
+
+Per-path granularity catches the common failure where a Java getter is spoofed but
+a `/proc`, `/sys`, `getprop`, or native read still leaks the real value.
+
+## Optional: Framework Mode
+
+Framework mode moves selected identifiers to the provider process so target apps
+carry no in-process hook. It is **experimental**: these are system-wide provider
+hooks, it requires adding "Android System Framework" and `com.android.phone` to
+Privacy Kit's LSPosed scope plus a reboot, and a fault could bootloop. Leave it
+off unless you are testing on a device you can recover.
+
+## Optional: Kernel Module (KPM) — APatch only
+
+> ⚠️ **Advanced and dangerous. Experimental — not yet verified on device.**
+> The KPM (`privacykit_kpm.kpm`) runs in the kernel. A bad kernel module can
+> **brick boot**. It requires **APatch with KPM support**. Load it only on a
+> device you can recover (fastboot / OrangeFox). It is written fail-open (any
+> error leaves the real syscall in place) and stays **off by default** in the app.
+
+Load and verify:
+
+```
+adb push privacykit_kpm.kpm /data/local/tmp/
+apd kpm load /data/local/tmp/privacykit_kpm.kpm
+apd kpm list
+```
+
+Then enable **Developer Settings → Kernel module (KPM)** in Privacy Kit and confirm
+with PK Probe. This build targets **KernelPatch 0.13.5**. If it fails to load,
+rebuild it against your APatch's exact KernelPatch version.
+
+## Warnings and Limitations
+
+- Identifier spoofing is **one** privacy layer, not full anonymity. Apps also use
+  accounts, cookies, local storage, IP address, sensors, and server-side records.
+- Some apps may block access, fail integrity checks (e.g. Play Integrity), reset
+  sessions, or behave unpredictably when identifiers change.
+- Framework mode and the KPM are system/kernel-level and higher risk (bootloop /
+  brick-boot). Both are optional and off by default.
+- Spoofing certain low-level properties can crash an app's graphics or ABI paths;
+  Privacy Kit deliberately avoids the riskiest ones.
+- Use separate accounts, network protections, and browser hygiene when your
+  privacy model requires stronger separation.
 
 ## Basic Usage Flow
 
-1. Install Privacy Kit from the official LSPosed/GitHub release.
-2. Enable Privacy Kit in LSPosed.
-3. Select the target apps that should receive spoofed identifiers.
-4. Open Privacy Kit and configure the identifier values or profiles you want to
-   use.
+1. Install Privacy Kit from the official release and enable it in LSPosed.
+2. Select the target apps that should receive spoofed identifiers.
+3. (Optional) Flash the Zygisk module for native coverage.
+4. Configure identifier values or apply a profile in the app.
 5. Restart the target apps so they read the updated values.
-6. Test each app carefully and adjust settings if an app behaves unexpectedly.
-
-For best results, change one app or profile at a time and confirm that the app
-still works before applying broader changes.
-
-## Privacy and Security Notes
-
-- Identifier spoofing is only one privacy layer and should not be treated as a
-  complete anonymity solution.
-- Apps may combine identifiers with account data, cookies, local storage, IP
-  addresses, device signals, and server-side records.
-- Some apps may block access, fail integrity checks, reset sessions, or behave
-  unpredictably when identifiers change.
-- Use separate accounts, network protections, browser hygiene, and permission
-  controls when your privacy model requires stronger separation.
-- Keep LSPosed, Magisk, Android security patches, and installed modules up to
-  date whenever possible.
+6. Verify with PK Probe, then adjust one app or profile at a time.
 
 ## Troubleshooting
 
 ### The module does not appear in LSPosed
-
-- Confirm that the APK installed successfully.
-- Confirm that LSPosed is active.
-- Reboot the device and check the LSPosed manager again.
+- Confirm the APK installed and that LSPosed is active; reboot and re-check.
 
 ### A target app is not affected
-
-- Make sure Privacy Kit is enabled for that specific app in LSPosed.
-- Force stop the target app and open it again.
-- Reboot if the app was running before the module was enabled.
-- Check whether the app reads identifiers through a path not currently handled
-  by the module.
+- Ensure Privacy Kit is enabled for that specific app in LSPosed.
+- Force stop and reopen the app; reboot if it was running before enabling.
+- Use PK Probe to see which path is still leaking, and enable the native/framework
+  layer for that surface.
 
 ### An app crashes or blocks access
-
 - Disable Privacy Kit for that app and restart it.
-- Try a fresh profile or less aggressive identifier changes.
-- Clear the app's data only if you understand the consequences, including loss
-  of local sessions or settings.
-- Some apps may not be compatible with identifier spoofing.
+- Try a fresh profile or less aggressive changes; some apps are incompatible.
 
 ### The APK cannot be installed
-
-- Make sure you downloaded the APK from the official release page.
-- Remove conflicting old builds if Android reports a signature or downgrade
-  issue.
-- Verify that your Android and LSPosed setup are supported and functional.
+- Download from the official release page.
+- Remove conflicting old builds on a signature or downgrade error.
 
 ## Release and APK Verification
 
-Official release:
+Official release: https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/24-1.22
 
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/10-1.8
-
-Official APK:
-
-https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/10-1.8/app-release.apk
-
-Expected SHA-256 for `app-release.apk`:
+Expected SHA-256:
 
 ```text
-827286F703BEEEF333AA82F7215CED15732B203F6A9ABAFEAF39EC0DBA51D578
+PrivacyKit-1.22.apk      95B1C0816A684186A8EA082F14F68E9728A40212944A57865C5BEA1F08CAB990
+PKProbe-1.22.apk         1E1104E0FAAFB7088C45B40D01307DEC01BF697F7853AE4BB48400594C54AABB
+privacykit_kpm.kpm       C9D4EB74CD04D73C2AEEE8BA23B9A5D2976286C040889658E5157BFBBD52AE67
 ```
 
-On a desktop system, compare the downloaded file's SHA-256 hash with the value
-above before installing. If the hash does not match, do not install the APK.
-
-## Support and Donations
-
-Privacy Kit takes time to build, test, maintain, and support. If the module is
-useful to you and you are able to help, a donation would mean a lot. Your
-support helps the developer continue this work and helps support their family
-with everyday needs, including food and living expenses.
-
-Donation link: TODO: add donation link
-
-Thank you for using Privacy Kit, sharing feedback, and supporting independent
-Android module development.
+Compare the downloaded file's SHA-256 with the value above before installing. If
+the hash does not match, do not install.
 
 ## Source Availability
 
 This public repository is intentionally release-only. It hosts public
 documentation, release metadata, and links to official APK releases for LSPosed
-distribution.
-
-The Android application source code, build project, signing material, private
-tooling, and generated build outputs are not published in this repository. The
-source code is maintained privately by the developer.
+distribution. The application source, build project, signing material, and private
+tooling are maintained privately by the developer.
 
 ## Disclaimer
 
 Use Privacy Kit only on devices and apps where you understand and accept the
 privacy, compatibility, legal, and policy implications. You are responsible for
-how you use this module. Some apps and services may restrict access, enforce
-integrity checks, terminate sessions, or behave unexpectedly when device
-identifiers are changed.
+how you use it. Some apps and services may restrict access, enforce integrity
+checks, terminate sessions, or behave unexpectedly when device identifiers change.
+The Framework mode and Kernel (KPM) features carry additional bootloop / brick-boot
+risk and are provided for advanced users on recoverable devices only.
