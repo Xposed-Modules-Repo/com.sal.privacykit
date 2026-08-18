@@ -226,6 +226,14 @@ privacykit_kpm.kpm       C9D4EB74CD04D73C2AEEE8BA23B9A5D2976286C040889658E5157BF
 Compare the downloaded file's SHA-256 with the value above before installing. If
 the hash does not match, do not install.
 
+## Support
+
+Privacy Kit takes time to build, test, maintain, and support. If it is useful to
+you and you are able to help, a donation means a lot and helps keep development
+going.
+
+Donate / support: https://pk.adserr.com
+
 ## Source Availability
 
 This public repository is intentionally release-only. It hosts public
