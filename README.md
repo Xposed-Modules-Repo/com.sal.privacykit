@@ -129,8 +129,8 @@ or a stability risk (for example, CPU ABI list and core count are left real).
 Install from an official public release:
 
 - LSPosed module repository listing for `com.sal.privacykit`.
-- GitHub release: [Privacy Kit 2.0](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/40-2.0).
-- Direct APK asset: [PrivacyKit-2.0.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/40-2.0/PrivacyKit-2.0.apk).
+- GitHub release: [Privacy Kit 2.0.1](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/41-2.0.1).
+- Direct APK asset: [PrivacyKit-2.0.1.apk](https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/download/41-2.0.1/PrivacyKit-2.0.1.apk).
 
 Install the APK on the device where LSPosed is set up. Do not install APKs from
 unknown mirrors unless you verify the checksum against the values below.
@@ -147,7 +147,7 @@ Keep the scope narrow — only enable it for apps you intend to manage.
 
 ## Verifying Spoofing with PK Probe
 
-PK Probe (`PrivacyKit-Probe-2.0.apk`) checks what is actually being spoofed, by baseline
+PK Probe (`PrivacyKit-Probe-2.0.1.apk`) checks what is actually being spoofed, by baseline
 diff rather than guesswork:
 
 1. Install PK Probe **unhooked** (not in Privacy Kit's LSPosed scope) and tap
@@ -231,15 +231,15 @@ rebuild it against your APatch's exact KernelPatch version.
 
 ## Release and APK Verification
 
-Official release: https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/40-2.0
+Official release: https://github.com/Xposed-Modules-Repo/com.sal.privacykit/releases/tag/41-2.0.1
 
 Expected SHA-256:
 
 ```text
-PrivacyKit-2.0.apk          B85C8674A1DC40AE766C1410282336766A5243F80CBEE73D98EC46C7830890D6
-PrivacyKit-Probe-2.0.apk    3321D731539AD348F4F6E8165924B3322A4A62DC3E73A853B16227D8A4F2855E
-privacykit-zygisk-v1.5.zip  3768B7C18CC8F002C391B233ABA0B72937D79C985D092E16C2DC57E33BCA9655
-privacykit_kpm.kpm          C9D4EB74CD04D73C2AEEE8BA23B9A5D2976286C040889658E5157BFBBD52AE67
+PrivacyKit-2.0.1.apk          2F3951B32C19DE3EF882C5BF993B9931BC9B45FDA8F32F2A2E10B70688BC7621
+PrivacyKit-Probe-2.0.1.apk    60E23F358610D82115E20AC9B6C3349C4AEE7598CA0C04F9C530CDE4B055F2EE
+privacykit-zygisk-v1.5.zip    3768B7C18CC8F002C391B233ABA0B72937D79C985D092E16C2DC57E33BCA9655
+privacykit_kpm.kpm            C9D4EB74CD04D73C2AEEE8BA23B9A5D2976286C040889658E5157BFBBD52AE67
 ```
 
 Compare the downloaded file's SHA-256 with the value above before installing. If
