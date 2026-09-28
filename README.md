@@ -58,6 +58,17 @@ For the native layer, flash `privacykit-zygisk-<ver>.zip` in your root manager a
 Source code, build instructions and the licensing server:
 https://github.com/Mohithash/Privacy_Kit
 
+## Build your own ROM with it
+
+Besides this LSPosed module, the same per-app spoofing runs inside the Android
+framework, with no injection, in BestROM, an open-source AOSP 17 ROM (first device
+POCO F6 / peridot). Nothing is injected into the app process, so this is the
+cleanest mode. You can build your own ROM with Privacy Kit baked in; the source
+tree ships an MCP server so a coding agent can sync, build and verify it.
+
+- BestROM: https://github.com/Mohithash/bestrom-project
+- Build (manifest): https://github.com/Mohithash/manifest
+
 ## A note from me
 
 I am an independent developer from India, and I work on this alone. I want to be
