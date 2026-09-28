@@ -170,6 +170,8 @@ If Privacy Kit is useful to you, buying Pro or sending a small donation genuinel
 helps me and my family. It is never required, and the free features stay free. If
 you would rather help with code, testing or ideas, that is very welcome too.
 
+I made this private project public to get through a hard time. Once it reaches my goal of about $5,000 in total earnings I plan to open-source it, so buying Pro or donating now both helps my family and brings that closer.
+
 Thank you for trying it.
 
 ## Support and contact
