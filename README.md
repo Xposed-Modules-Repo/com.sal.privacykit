@@ -53,6 +53,94 @@ below the app.
 
 For the native layer, flash `privacykit-zygisk-<ver>.zip` in your root manager and reboot.
 
+## Spoof modes
+
+Every app you add has a spoof mode. The mode decides which layers do the spoofing,
+from the widest and most detectable to the quietest. Standard is the default. Move
+an app to a quieter mode only if it notices the hooks or crashes.
+
+There are five layers underneath:
+
+- T1 LSPosed Java hooks. Widest coverage, easiest for an app to detect. Needs the
+  app ticked in LSPosed.
+- T2 Zygisk native inline hooks. GL strings and some properties. A few hardened
+  apps crash on this layer.
+- T3 Zygisk native JNI. `Build.*` fields and system properties, with no inline
+  trampolines, so it survives most anti-hook checks.
+- T4 Framework. Android ID, serial and telephony IDs, spoofed inside system_server.
+  Nothing is added to the app.
+- T5 KPM. A kernel module. cpuinfo, CPU frequencies, `if_inet6`, install dates, the
+  Wi-Fi MAC, and Android ID / advertising ID at the kernel. APatch only. See below.
+
+| Mode | Layers | In LSPosed scope | Covers | Reads real |
+|---|---|---|---|---|
+| Standard | T1 + T2 + T3 | yes | everything Privacy Kit can spoof | nothing extra |
+| Balanced | T2 + T3 + T4 | no, remove it | Build, properties and IDs, no Xposed in the process | nothing extra |
+| Stealth | T3 + T4 + T5 | no, remove it | Build and properties via JNI, IDs, kernel files, no inline hooks | nothing extra |
+| Ultra | T4 + T5 | no, remove it | Android ID and IDs at the source, plus kernel files, nothing in the app | Build, model and properties |
+
+Set the mode on each app's Spoof Mode screen. Balanced, Stealth and Ultra want the
+app out of the LSPosed scope; Privacy Kit makes its own Java hooks inert for that
+app and reminds you. Stealth and Ultra use the kernel module, so they need APatch.
+Ultra is the quietest, but since nothing runs in the app it shows the real model
+and build, so a check that compares your Android ID against your model can still
+notice. Stealth adds the native layer back for a coherent device without inline
+hooks.
+
+## KPM guide (APatch kernel module)
+
+The KPM is the T5 kernel layer. It runs below libc and below the app, so an app's
+anti-hook checks find nothing in its own process. It is optional, and only the
+Stealth and Ultra modes use it.
+
+You need:
+
+- APatch with KernelPatch (KPM) support. Magisk, KernelSU and SukiSU cannot run a
+  KPM. The KPM controls still appear on those, but the kernel tier is marked
+  unavailable and turning it on just does nothing.
+- The module file `privacykit_kpm.kpm`. It ships next to the release, not inside
+  the APK. It is built against a kernel, so you may have to build it for yours. The
+  module source is in `zygisk-privacykit/kpm/` in the Privacy_Kit repo.
+- Your APatch superkey.
+- A way back in, such as fastboot or a custom recovery. A bad kernel module can
+  stop the phone from booting.
+
+Set it up:
+
+1. Push the module once with `adb push privacykit_kpm.kpm /data/local/tmp/privacykit_kpm.kpm`. Any root file copy works too.
+2. Open Privacy Kit, then Settings, Developer, the KPM section. Paste your APatch
+   superkey and tap Save superkey. It is checked once, stored encrypted, never
+   shown again, and left out of backups.
+3. Set the apps you want to Stealth or Ultra, or turn on Kernel module (KPM) in
+   Developer settings. Privacy Kit loads the module through APatch
+   (`kpatch <superkey> kpm load`). Setup Doctor has a one-tap Load if it is not up.
+4. The module does not stay loaded across a reboot on its own. Privacy Kit reloads
+   it on boot when you have KPM apps and a saved superkey. If it is ever down,
+   Setup Doctor shows it and offers Load.
+
+What it spoofs:
+
+- Files: `/proc/cpuinfo`, `/proc/version`, `/proc/net/if_inet6`, CPU frequencies,
+  the Wi-Fi MAC at `/sys/class/net/wlan0/address`, and the app install date.
+- IDs, per app: Android ID, advertising ID and the Widevine device ID, rewritten
+  in the kernel. This reaches the normal read path; the cursor query path stays
+  real. It needs a current module (1.6.0) and only runs once Privacy Kit arms it,
+  so an older loaded KPM may leave these IDs real.
+- Everything is per app and only for normal apps. Root and system still read the
+  real device.
+
+What it does not do:
+
+- It does not touch `Build.*` or system properties. Those come from the native or
+  framework layers, so Ultra on its own shows the real model and build. Use Stealth
+  if you want those spoofed too.
+- It does not defeat hardware keystore or Play Integrity attestation.
+- It does not spoof IMEI, serial, IMSI, ICCID or Bluetooth. A normal app cannot
+  read those anyway.
+- The cpuinfo, frequency and version text is filled in by your AI provider if you
+  set one. Without it, the install date, `if_inet6` and Wi-Fi MAC are still
+  spoofed, and the rest is skipped rather than faked badly.
+
 ## Source
 
 Source code, build instructions and the licensing server:
