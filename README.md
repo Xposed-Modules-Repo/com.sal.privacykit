@@ -144,7 +144,7 @@ What it does not do:
 ## Source
 
 Source code, build instructions and the licensing server:
-https://github.com/Mohithash/Privacy_Kit
+https://github.com/Mohithash/privacy-kit-lite
 
 ## Build your own ROM with it
 
