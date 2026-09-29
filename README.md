@@ -10,7 +10,7 @@ It does not make you anonymous. Apps can still track you by login, IP address,
 network metadata, browser state and server-side checks. Privacy Kit only covers
 on-device identifiers.
 
-Package: `com.sal.privacykit`. Current version: `2.3.1` (versionCode 68).
+Package: `com.sal.privacykit`. Current version: `3.2` (versionCode 89).
 
 ## What a release contains
 
