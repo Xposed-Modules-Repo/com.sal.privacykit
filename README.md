@@ -59,18 +59,16 @@ Every app you add has a spoof mode. The mode decides which layers do the spoofin
 from the widest and most detectable to the quietest. Standard is the default. Move
 an app to a quieter mode only if it notices the hooks or crashes.
 
-There are five layers underneath:
+There are five layers underneath, from the widest and most detectable (T1) to the
+quietest (T5):
 
-- T1 LSPosed Java hooks. Widest coverage, easiest for an app to detect. Needs the
-  app ticked in LSPosed.
-- T2 Zygisk native inline hooks. GL strings and some properties. A few hardened
-  apps crash on this layer.
-- T3 Zygisk native JNI. `Build.*` fields and system properties, with no inline
-  trampolines, so it survives most anti-hook checks.
-- T4 Framework. Android ID, serial and telephony IDs, spoofed inside system_server.
-  Nothing is added to the app.
-- T5 KPM. A kernel module. cpuinfo, CPU frequencies, `if_inet6`, install dates, the
-  Wi-Fi MAC, and Android ID / advertising ID at the kernel. APatch only. See below.
+| Tier | Layer | Where it runs | What it spoofs | Detectability | Needs |
+|---|---|---|---|---|---|
+| **T1** | LSPosed Java hooks | Inside the app process (Xposed) | The widest set of Java-layer identifiers | Highest — easiest for an app to detect | App ticked in LSPosed scope |
+| **T2** | Zygisk native inline hooks | Inside the app process (native) | GL strings and some system properties | Medium — a few hardened apps crash on this layer | Zygisk (Magisk / KernelSU / APatch) |
+| **T3** | Zygisk native JNI | Inside the app process (native, no trampolines) | `Build.*` fields and system properties | Low — no inline trampolines, survives most anti-hook checks | Zygisk |
+| **T4** | Framework | `system_server` — nothing is added to the app | Android ID, serial and telephony IDs | Very low — nothing is injected into the app | Built in (no extra module) |
+| **T5** | KPM (kernel module) | The kernel, below libc and below the app | cpuinfo, CPU frequencies, `if_inet6`, install dates, Wi-Fi MAC, and Android ID / advertising ID | Lowest — runs beneath the app entirely | APatch with KPM (see below) |
 
 | Mode | Layers | In LSPosed scope | Covers | Reads real |
 |---|---|---|---|---|
